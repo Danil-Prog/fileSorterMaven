@@ -1,72 +1,51 @@
 package com.testCFT.app;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 
-/**
- * Hello world!
- *
- */
-public class App 
-{
-    public static String exit = " Click Enter to EXIT";
+public class App {
+
+    public static final String EXIT = " Click Enter to EXIT";
+
+    public final OperationService operationService = new OperationService();
 
     public static void main(String[] args) {
-        if (args.length < 3){
-
-            System.out.println("Необходимо минимум 3 аргумента!" + exit);
+        if (args.length < 3) {
+            System.out.println("Необходимо минимум 3 аргумента!" + EXIT);
             exitByEnterPressed();
-
         }
-        String listMode = args[0];
-        String listType = args [1];
-        String outputFileName = args[2];
-        String inputFileName;
         ArrayList<String> rawData = new ArrayList<>();
-        String data[];
-        int intArr[];
-        boolean isAscending;
-        for (int i = 3; i <= args.length - 1; i++) {
-            inputFileName = args[i];
 
+        for (int i = 3; i <= args.length - 1; i++) {
+            String inputFileName = args[i];
             try (BufferedReader reader = new BufferedReader(new FileReader(inputFileName))) {
                 while (reader.ready()) {
                     rawData.add(reader.readLine());
                 }
-            }
-            catch (FileNotFoundException e) {
-                System.out.println("Входной файл с таким именем не найден!" + exit);
-
+            } catch (FileNotFoundException e) {
+                System.out.println("Входной файл с таким именем не найден!" + EXIT);
             } catch (IOException e) {
                 System.out.println("Ошибка чтения входных данных");
-            }catch (Exception ex){
+            } catch (Exception ex) {
                 break;
             }
         }
+        new App().run(args[0], args[1], args[2], rawData);
+    }
 
-        data = new String[rawData.size()];
-        rawData.toArray(data);
-        listType = checkListType(data, listType);
-        isAscending = checkListMode(listMode);
-        try(FileWriter writer = new FileWriter(outputFileName)) {
-            if (listType.equals("-i")) {
-                intArr = Arrays.stream(data).mapToInt(Integer::parseInt).toArray();
-                Sorter.sortInt(intArr, isAscending);
-                for (int i = 0; i < intArr.length; i++)
-                    writer.write(intArr[i] + "\r\n");
-                writer.close();
+    public void run(
+            String listMode,
+            String listType,
+            String outputFileName,
+            ArrayList<String> rawData) {
+        String[] data = (String[]) rawData.toArray();
 
-            } else {
-                Sorter.sortString(data, isAscending);
-                for (int i = 0; i < data.length; i++)
-                    writer.write(data[i] + "\r\n");
-                writer.close();
-            }
-        }
-        catch (IOException e) {
-            System.out.println("Ошибка записи выходных данных." + exit);
-        }
+        listType = operationService.checkListType(data, listType);
+        boolean isAscending = operationService.checkListMode(listMode);
+        operationService.fileWrite(listType, outputFileName, isAscending, data);
     }
 
     // Завершение программы по нажатии пользователем Enter
@@ -74,45 +53,10 @@ public class App
         try {
             System.in.read();
             System.exit(1);
-        }
-        catch (IOException ignored) {
+        } catch (IOException ignored) {
 
         }
     }
 
-    public static String checkListType(String[] arr, String expectedType) {
-        if (expectedType.equals("-i")){
-            try {
-                int intArr[] = Arrays.stream(arr).mapToInt(Integer::parseInt).toArray();
-            }
-            catch (NumberFormatException e){
-                System.out.println("Вы пытаетесь отсортировать массив, содержащий строки, как массив целых чисел. Тип сортируемых данных будет изменен.");
-                return "-s";
-            }
-        }
-        else if (expectedType.equals("-s")) {
-            try {
-                int intArr[] = Arrays.stream(arr).mapToInt(Integer::parseInt).toArray();
-                System.out.println("Вы пытаетесь отсортировать массив целых чисел как массив строк. Тип сортируемых данных будет изменен.");
-                return "i";
-            } catch (NumberFormatException e){
-                return expectedType;
-            }
-        }
-        else {
-            System.out.println("Вы указали неверный тип входных данных. Данные будут отсортированы по умолчанию как массив строк.");
-            return "-s";
-        }
-        return expectedType;
-    }
 
-
-    public static boolean checkListMode(String listMode) {
-        if (listMode.equals("-a"))
-            return true;
-        else if (listMode.equals("-d"))
-            return false;
-        System.out.println("Вы неверно указали тип сортировки. Элементы будут отсортированы по возрастанию по умолчанию.");
-        return true;
-    }
 }
