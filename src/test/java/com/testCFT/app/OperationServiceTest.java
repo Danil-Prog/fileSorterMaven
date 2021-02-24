@@ -30,9 +30,4 @@ public class OperationServiceTest extends TestCase {
         actual = operationService.checkListMode("-d");
         Assert.assertEquals(false, actual);
     }
-
-    @Test
-    public void testFileWrite() {
-//        operationService.fileWrite();
-    }
 }

@@ -41,12 +41,11 @@ public class App {
             String listType,
             String outputFileName,
             ArrayList<String> rawData) {
-        String[] data = (String[]) rawData.toArray();
-
-        listType = operationService.checkListType(data, listType);
-        boolean isAscending = operationService.checkListMode(listMode);
-        operationService.fileWrite(listType, outputFileName, isAscending, data);
-    }
+                String[] data = (String[]) rawData.toArray();
+                listType = operationService.checkListType(data, listType);
+                boolean isAscending = operationService.checkListMode(listMode);
+                operationService.fileWrite(listType, outputFileName, isAscending, data);
+        }
 
     // Завершение программы по нажатии пользователем Enter
     public static void exitByEnterPressed() {
